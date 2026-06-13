@@ -1,0 +1,6 @@
+{
+  "name": "HYDRA AI",
+  "description": "An AI-powered Smart Water Reminder and Hydration Coach.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
