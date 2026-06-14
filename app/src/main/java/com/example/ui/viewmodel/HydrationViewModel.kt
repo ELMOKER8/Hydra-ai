@@ -27,28 +27,23 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
     private val TAG = "HydrationViewModel"
     private val repository: HydrationRepository
 
-    // Reactive Flows from Database
     val userProfile: StateFlow<UserProfile?>
     val allWaterLogs: StateFlow<List<WaterLog>>
     val achievements: StateFlow<List<Achievement>>
     
-    // Water logs for today
     private val _todayDateStr = MutableStateFlow(getFormattedDate(System.currentTimeMillis()))
     val todayWaterLogs: StateFlow<List<WaterLog>>
 
-    // Onboarding Form States
     var onboardingStep by mutableIntStateOf(1)
         private set
     var tempProfile by mutableStateOf(UserProfile())
         private set
 
-    // AI Coaching States
     var aiInsightText by mutableStateOf("Initializing your Smart AI Hydration Coach...")
         private set
     var isLoadingInsight by mutableStateOf(false)
         private set
     
-    // Active UI Messages (Toast / Snackbars)
     var gamificationMessage by mutableStateOf<String?>(null)
         private set
 
@@ -56,7 +51,6 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
         val database = AppDatabase.getDatabase(application)
         repository = HydrationRepository(database.hydrationDao())
 
-        // Hook up database states
         userProfile = repository.userProfile.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -83,14 +77,12 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
             initialValue = emptyList()
         )
 
-        // Initial launch preparations or seeds
         viewModelScope.launch {
             repository.seedAchievementsIfNeeded()
             generateDailyCoachInsight()
         }
     }
 
-    // --- Onboarding Navigation & Form bindings ---
     fun updateName(name: String) {
         tempProfile = tempProfile.copy(name = name)
     }
@@ -172,12 +164,11 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // --- Hydration Logging ---
     fun logWaterIntake(volumeMl: Int, containerType: String) {
         viewModelScope.launch {
             val message = repository.logWater(volumeMl, containerType)
             gamificationMessage = message
-            generateDailyCoachInsight() // Re-evaluate coach insight on progress change
+            generateDailyCoachInsight()
         }
     }
 
@@ -228,7 +219,6 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // --- AI Coaching & Chat Assistant ---
     fun generateDailyCoachInsight() {
         val currentProfile = userProfile.value ?: tempProfile
         val loggedVolume = todayWaterLogs.value.sumOf { it.volumeMl }
@@ -236,7 +226,6 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-        // Compose dynamic details for the coach
         val expected = if (hour < 8) 0 else ((currentProfile.dailyGoalMl / 16.0) * (hour - 7)).toInt()
 
         viewModelScope.launch {
@@ -284,7 +273,6 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // --- History Exporting ---
     fun getExportString(): String {
         val logs = allWaterLogs.value
         if (logs.isEmpty()) return "No water logs recorded yet."

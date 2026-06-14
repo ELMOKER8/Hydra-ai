@@ -56,7 +56,6 @@ fun OnboardingScreen(navController: NavController, viewModel: HydrationViewModel
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header Progress Indicators
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,7 +85,6 @@ fun OnboardingScreen(navController: NavController, viewModel: HydrationViewModel
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Progress bar
             LinearProgressIndicator(
                 progress = { step / 11f },
                 modifier = Modifier
@@ -99,7 +97,6 @@ fun OnboardingScreen(navController: NavController, viewModel: HydrationViewModel
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            // Body Card Content with Animation
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -123,7 +120,6 @@ fun OnboardingScreen(navController: NavController, viewModel: HydrationViewModel
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Navigation actions
             Button(
                 onClick = {
                     if (step == 11) {
@@ -157,8 +153,6 @@ fun OnboardingScreen(navController: NavController, viewModel: HydrationViewModel
         }
     }
 }
-
-// Step UI subcomponents
 
 @Composable
 fun Step1UserName(viewModel: HydrationViewModel) {

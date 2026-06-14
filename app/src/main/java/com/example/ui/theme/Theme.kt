@@ -27,7 +27,6 @@ private val DefaultLightColorScheme = lightColorScheme(
     onSurface = Color(0xFF121212)
 )
 
-// Presets Scheme mappings
 private val OceanDarkColorScheme = darkColorScheme(
     primary = OceanPrimary,
     secondary = OceanSecondary,

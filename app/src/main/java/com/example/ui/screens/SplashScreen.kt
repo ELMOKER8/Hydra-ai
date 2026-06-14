@@ -30,7 +30,6 @@ import kotlinx.coroutines.delay
 fun SplashScreen(navController: NavController, viewModel: HydrationViewModel) {
     val userProfile by viewModel.userProfile.collectAsState()
 
-    // Breathing pulse animations for water logo
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val scalePulse by infiniteTransition.animateFloat(
         initialValue = 0.85f,
@@ -43,7 +42,7 @@ fun SplashScreen(navController: NavController, viewModel: HydrationViewModel) {
     )
 
     LaunchedEffect(userProfile) {
-        delay(2200) // Beautiful cinematic transition delay
+        delay(2200)
         val profile = userProfile
         if (profile != null && profile.initialSetupFinished) {
             navController.navigate(Screen.Main.route) {
@@ -80,7 +79,6 @@ fun SplashScreen(navController: NavController, viewModel: HydrationViewModel) {
                     .scale(scalePulse),
                 contentAlignment = Alignment.Center
             ) {
-                // Outer glow shadow rings
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

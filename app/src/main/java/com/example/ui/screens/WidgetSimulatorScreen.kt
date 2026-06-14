@@ -61,7 +61,6 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
-            // 1. Small Widget Simulator
             Text("Small Launcher Widget (2x2)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
 
             Card(
@@ -113,7 +112,6 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 2. Medium Launcher Widget (4x2)
             Text("Medium Landscape Widget (4x2)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
 
             Card(
@@ -163,7 +161,6 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
                         }
                     }
 
-                    // Progress circular
                     Box(contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(
                             progress = { progressPercent },
@@ -182,7 +179,6 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 3. Large Launcher Widget (4x4)
             Text("Large Professional Widget (4x4)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
 
             Card(
@@ -199,7 +195,6 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
                         .padding(18.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Header metrics
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -219,7 +214,6 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
                         }
                     }
 
-                    // Waves level gauge
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -247,7 +241,6 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
                         }
                     }
 
-                    // Tapping row logs
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),

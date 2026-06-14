@@ -59,18 +59,11 @@ object GeminiClient {
             .create(GeminiApiService::class.java)
     }
 
-    /**
-     * Checks if a valid Gemini API key is configured.
-     */
     fun isApiKeyConfigured(): Boolean {
         val key = BuildConfig.GEMINI_API_KEY
         return key.isNotEmpty() && key != "MY_GEMINI_API_KEY" && key != "placeholder"
     }
 
-    /**
-     * Generates a conversational response or smart motivation based on a prompt.
-     * Falls back to a high-quality local generation if the API call fails or there's no key.
-     */
     suspend fun generateHydrationInsight(prompt: String): String {
         if (!isApiKeyConfigured()) {
             Log.w(TAG, "Gemini API Key is not configured correctly. Relying on local generator.")
@@ -94,10 +87,6 @@ object GeminiClient {
         return generateLocalFallback(prompt)
     }
 
-    /**
-     * Highly context-sensitive local text insights generator.
-     * It parses instructions inside the prompt to supply extremely realistic rule-based text!
-     */
     private fun generateLocalFallback(prompt: String): String {
         Log.i(TAG, "Relying on Rule-Based Premium AI Coach Fallback.")
         val lowerPrompt = prompt.lowercase()

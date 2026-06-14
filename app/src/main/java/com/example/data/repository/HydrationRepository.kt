@@ -21,9 +21,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
         return hydrationDao.getWaterLogsForDateFlow(date)
     }
 
-    /**
-     * Seeds the standard achievements if the table is empty.
-     */
     suspend fun seedAchievementsIfNeeded() {
         val existing = hydrationDao.getAllAchievementsDirect()
         if (existing.isEmpty()) {
@@ -49,14 +46,9 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
         }
     }
 
-    /**
-     * Calculates the daily water requirement in ML using the prompt's advanced hydration formula.
-     */
     fun calculateDailyTargetMl(profile: UserProfile): Int {
-        // 1. Base Formula: 35ml * weight (kg)
         val base = 35 * profile.weightKg
 
-        // 2. Activity Adjustment
         val activityModifier = when (profile.activityLevel) {
             "Sedentary" -> 0
             "Lightly Active" -> 300
@@ -66,7 +58,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             else -> 500
         }
 
-        // 3. Climate Adjustment
         val climateModifier = when (profile.climate) {
             "Cold" -> 0
             "Mild" -> 200
@@ -75,7 +66,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             else -> 200
         }
 
-        // 4. Goal Adjustment
         val goalModifier = when (profile.hydrationGoal) {
             "General Health" -> 0
             "Better Skin" -> 250
@@ -85,7 +75,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             else -> 0
         }
 
-        // 5. Wake Time Adjustment (Awake longer than 16 hours)
         val wakeModifier = if (isAwakeLongerThan16(profile.wakeUpTime, profile.sleepTime)) 300 else 0
 
         return base + activityModifier + climateModifier + goalModifier + wakeModifier
@@ -98,7 +87,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             val wakeMins = wakeParts[0] * 60 + wakeParts[1]
             var sleepMins = sleepParts[0] * 60 + sleepParts[1]
             if (sleepMins < wakeMins) {
-                // Sleeps past midnight
                 sleepMins += 24 * 60
             }
             val awakeDurationMins = sleepMins - wakeMins
@@ -108,9 +96,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
         }
     }
 
-    /**
-     * Initializes the user profile on first onboarding finish or resets.
-     */
     suspend fun saveUserProfile(profile: UserProfile) {
         val calculatedGoal = calculateDailyTargetMl(profile)
         val finalProfile = profile.copy(
@@ -121,17 +106,10 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
         seedAchievementsIfNeeded()
     }
 
-    /**
-     * Direct update for settings or sliders.
-     */
     suspend fun updateUserProfileDirect(profile: UserProfile) {
         hydrationDao.insertUserProfile(profile)
     }
 
-    /**
-     * Log water intake, handle XP increases, check achievements, level up, and check/advance streaks.
-     * Returns a string summarizing gamification events (e.g. "+5 XP, Unlocked Early Bird!").
-     */
     suspend fun logWater(
         volumeMl: Int,
         containerType: String,
@@ -145,31 +123,25 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             logDate = dateString
         )
 
-        // 1. Insert Database Log
         hydrationDao.insertWaterLog(log)
 
-        // 2. Fetch User Profile to apply XP, Streaks and Level up rules
         var profile = hydrationDao.getUserProfileDirect() ?: UserProfile()
         var xpEarned = 5
         var levelUpOccurred = false
         val unlockedMessages = mutableListOf<String>()
 
-        // Check if goal met before this log
         val todayLogsBefore = hydrationDao.getWaterLogsForDateDirect(dateString).filter { it.id != log.id }
         val todayIntakeBefore = todayLogsBefore.sumOf { it.volumeMl }
         val todayIntakeAfter = todayIntakeBefore + volumeMl
         val goalMetBefore = todayIntakeBefore >= profile.dailyGoalMl
         val goalMetAfter = todayIntakeAfter >= profile.dailyGoalMl
 
-        // Goal achievement bonus XP
         if (!goalMetBefore && goalMetAfter) {
             xpEarned += 25
             unlockedMessages.add("🎉 Met Daily Hydration Goal! (+25 XP)")
             
-            // Advance Streak
             val yesterdayString = getFormattedDate(timestamp - 24 * 60 * 60 * 1000)
             if (profile.lastLogDate == yesterdayString) {
-                // Streak continues!
                 val nextStreak = profile.currentStreak + 1
                 val maxStreak = maxOf(nextStreak, profile.longestStreak)
                 profile = profile.copy(
@@ -178,7 +150,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
                     lastLogDate = dateString
                 )
             } else if (profile.lastLogDate != dateString) {
-                // Logged on a new day, but streak broken or is first day
                 profile = profile.copy(
                     currentStreak = 1,
                     longestStreak = maxOf(1, profile.longestStreak),
@@ -187,7 +158,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             }
         }
 
-        // Calculate XP and level
         var finalXp = profile.currentXp + xpEarned
         var finalLevel = profile.currentLevel
         val levelBoundary = 100
@@ -207,12 +177,10 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             currentLevel = finalLevel
         )
 
-        // 3. Verify Achievements System
-        val allLogs = hydrationDao.getWaterLogsForDateDirect(dateString) // including this log
+        val allLogs = hydrationDao.getWaterLogsForDateDirect(dateString)
         val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-        // Load existing achievements
         val achievementsList = hydrationDao.getAllAchievementsDirect()
 
         suspend fun unlock(id: String) {
@@ -224,44 +192,28 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
             }
         }
 
-        // Trigger evaluations:
-        // A. First drink
         unlock("first_drink")
 
-        // B. Early Bird (before 7 AM)
         if (hour < 7) {
             unlock("early_bird")
         }
 
-        // C. Night Owl (after 11 PM / 23:00)
         if (hour >= 23) {
             unlock("night_owl")
         }
 
-        // D. Consistency King (Logged >= 5 times in a single day)
         if (allLogs.size >= 5) {
             unlock("consistency_king")
         }
 
-        // E. Rookie (cumulative >= 5000ml)
-        val allTimeLogs = hydrationDao.getWaterLogsForDateFlow("%").also {  } // wait we can do query
-        // Let's query all water logs to calculate total ml
-        val totalMl = hydrationDao.getWaterLogsForDateDirect("").let { 
-            // We can fetch via flow or we just calculate cumulative
-            // To be efficient, let's just count cumulative sum easily
-            0
+        val totalVolumeAcrossDatabase = hydrationDao.getWaterLogsForDateDirect("%").sumOf { it.volumeMl }
+        if (totalVolumeAcrossDatabase >= 5000) {
+            unlock("rookie")
         }
-        // Let's implement active fetch in ViewModel or a quick custom SQL in Dao. Since it's local, we can query total sum.
-        // Let's run a direct query to calculate total water consumed
-        val totalVolumeAcrossDatabase = hydrationDao.getWaterLogsForDateDirect("%").sumOf { it.volumeMl } // Since our query for date matching is specific, let's verify cumulative logs.
-        // Let's fetch all records for total count:
-        // Wait! DAO has helper `getAllWaterLogsFlow()`. Let's calculate total sum by fetching directly.
-        // We can add a simple function to Dao to query sum, but we can also sum the list.
-        // Let's write a standard method in DAO if needed, or simply sum them in Kotlin.
-        // Summing in Kotlin is safe since logs are small.
-        // Let's see: how do they trigger Rookie and Legend? We can track cumulative logged amount.
-        
-        // F. Stream Streaks:
+        if (totalVolumeAcrossDatabase >= 50000) {
+            unlock("legend")
+        }
+
         if (profile.currentStreak >= 3) unlock("streak_3")
         if (profile.currentStreak >= 7) unlock("streak_7")
         if (profile.currentStreak >= 14) unlock("streak_14")
@@ -271,7 +223,6 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
         if (profile.currentLevel >= 10) unlock("master")
         if (profile.currentLevel >= 25) unlock("champion")
 
-        // Save progress back
         hydrationDao.insertUserProfile(profile)
 
         return if (unlockedMessages.isNotEmpty()) {
@@ -281,12 +232,8 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
         }
     }
 
-    /**
-     * Deletes a water log entry and updates the user profile's streak/XP or daily status as needed.
-     */
     suspend fun deleteWaterLog(log: WaterLog) {
         hydrationDao.deleteWaterLog(log)
-        // If daily progress fell below target, streak adjustment can happen but let's keep it simple for delete.
     }
 
     suspend fun clearWaterLogsForDate(date: String) {

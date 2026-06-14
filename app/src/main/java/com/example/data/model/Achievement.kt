@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "achievements")
 data class Achievement(
-    @PrimaryKey val id: String, // String ID for lookup, e.g. "first_drink"
+    @PrimaryKey val id: String,
     val title: String,
     val description: String,
     val isUnlocked: Boolean = false,

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface HydrationDao {
 
-    // --- User Profile ---
     @Query("SELECT * FROM user_profile WHERE id = 1 LIMIT 1")
     fun getUserProfileFlow(): Flow<UserProfile?>
 
@@ -22,7 +21,6 @@ interface HydrationDao {
     @Update
     suspend fun updateUserProfile(profile: UserProfile)
 
-    // --- Water Logs ---
     @Query("SELECT * FROM water_logs ORDER BY timestamp DESC")
     fun getAllWaterLogsFlow(): Flow<List<WaterLog>>
 
@@ -47,7 +45,6 @@ interface HydrationDao {
     @Query("DELETE FROM water_logs WHERE logDate = :date")
     suspend fun deleteWaterLogsForDate(date: String)
 
-    // --- Achievements ---
     @Query("SELECT * FROM achievements ORDER BY id ASC")
     fun getAllAchievementsFlow(): Flow<List<Achievement>>
 

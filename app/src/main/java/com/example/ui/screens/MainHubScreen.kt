@@ -42,8 +42,7 @@ fun MainHubScreen(viewModel: HydrationViewModel) {
                         )
                     }
                 },
-                actions = {
-                    // Quick add simulator tool
+                                actions = {
                     IconButton(onClick = { activeTab = "widgets" }) {
                         Icon(
                             imageVector = Icons.Default.Widgets,
@@ -52,7 +51,6 @@ fun MainHubScreen(viewModel: HydrationViewModel) {
                         )
                     }
 
-                    // Settings trigger
                     IconButton(onClick = { activeTab = "settings" }) {
                         Icon(
                             imageVector = Icons.Default.Settings,
@@ -71,7 +69,6 @@ fun MainHubScreen(viewModel: HydrationViewModel) {
                 containerColor = MaterialTheme.colorScheme.surface,
                 windowInsets = WindowInsets.navigationBars
             ) {
-                // Tab 1: Dashboard
                 NavigationBarItem(
                     selected = activeTab == "dashboard",
                     onClick = { activeTab = "dashboard" },
@@ -79,7 +76,6 @@ fun MainHubScreen(viewModel: HydrationViewModel) {
                     label = { Text("Coach", fontWeight = FontWeight.Bold) }
                 )
 
-                // Tab 2: Statistics
                 NavigationBarItem(
                     selected = activeTab == "statistics",
                     onClick = { activeTab = "statistics" },
@@ -87,7 +83,6 @@ fun MainHubScreen(viewModel: HydrationViewModel) {
                     label = { Text("Metrics", fontWeight = FontWeight.Bold) }
                 )
 
-                // Tab 3: AI Coach chat
                 NavigationBarItem(
                     selected = activeTab == "ai_coach",
                     onClick = { activeTab = "ai_coach" },
@@ -95,7 +90,6 @@ fun MainHubScreen(viewModel: HydrationViewModel) {
                     label = { Text("AI Ask", fontWeight = FontWeight.Bold) }
                 )
 
-                // Tab 4: Achievements
                 NavigationBarItem(
                     selected = activeTab == "achievements",
                     onClick = { activeTab = "achievements" },
@@ -103,7 +97,6 @@ fun MainHubScreen(viewModel: HydrationViewModel) {
                     label = { Text("Medals", fontWeight = FontWeight.Bold) }
                 )
 
-                // Tab 5: History Logs
                 NavigationBarItem(
                     selected = activeTab == "history",
                     onClick = { activeTab = "history" },
