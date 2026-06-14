@@ -21,6 +21,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class HydrationViewModel(application: Application) : AndroidViewModel(application) {
 
     private val TAG = "HydrationViewModel"

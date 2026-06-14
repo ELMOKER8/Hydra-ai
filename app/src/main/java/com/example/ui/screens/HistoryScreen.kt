@@ -140,7 +140,7 @@ fun HistoryScreen(viewModel: HydrationViewModel) {
                 }
             }
 
-            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
             // Main Logs Grid List
             if (filteredLogs.isEmpty()) {

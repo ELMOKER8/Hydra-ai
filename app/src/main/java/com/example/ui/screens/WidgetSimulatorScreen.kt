@@ -59,7 +59,7 @@ fun WidgetSimulatorScreen(viewModel: HydrationViewModel) {
                 lineHeight = 18.sp
             )
 
-            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
             // 1. Small Widget Simulator
             Text("Small Launcher Widget (2x2)", fontSize = 14.sp, fontWeight = FontWeight.Bold)

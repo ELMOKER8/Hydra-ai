@@ -142,7 +142,7 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
-            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
             // Coach Interactive Chat console
             Row(verticalAlignment = Alignment.CenterVertically) {
