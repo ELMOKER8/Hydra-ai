@@ -51,6 +51,7 @@ fun AchievementsScreen(viewModel: HydrationViewModel) {
                 color = MaterialTheme.colorScheme.primary
             )
 
+            // Progress Summary Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
@@ -100,6 +101,7 @@ fun AchievementsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Achievements grid shelf
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -144,6 +146,7 @@ fun AchievementItemBadge(badge: Achievement) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Icon
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -182,6 +185,7 @@ fun AchievementItemBadge(badge: Achievement) {
                 )
             }
 
+            // Reward / Date Unlocked
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))

@@ -44,6 +44,9 @@ interface HydrationDao {
     @Query("DELETE FROM water_logs")
     suspend fun clearAllWaterLogs()
 
+    @Query("DELETE FROM water_logs WHERE logDate = :date")
+    suspend fun deleteWaterLogsForDate(date: String)
+
     // --- Achievements ---
     @Query("SELECT * FROM achievements ORDER BY id ASC")
     fun getAllAchievementsFlow(): Flow<List<Achievement>>

@@ -36,6 +36,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
     var showResetDialog by remember { mutableStateOf(false) }
     var showClearTodayDialog by remember { mutableStateOf(false) }
 
+    // Read current variables local states
     val reminderMode = profile?.reminderMode ?: "Smart AI"
     val soundEnabled = profile?.soundEnabled ?: true
     val vibrationEnabled = profile?.vibrationEnabled ?: true
@@ -68,6 +69,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                 color = MaterialTheme.colorScheme.primary
             )
 
+            // Dynamic Goal Override Modifier
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -104,6 +106,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Visual Themes Presets
             Text(text = "Visual Palette Style", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
 
             Card(
@@ -142,6 +145,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Reminders Schedules & Clinical Modes
             Text(text = "Clinical Schedules Configuration", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
 
             Card(
@@ -150,6 +154,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    // Coach Reminder Modes
                     Column {
                         Text("Coach Reminder Mode", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
@@ -192,6 +197,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
 
                     HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
+                    // Audio feedback Sound enabled
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -214,6 +220,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                         )
                     }
 
+                    // Tactile Vibration
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -236,6 +243,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                         )
                     }
 
+                    // Measurement Standard units
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -278,6 +286,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Clear Today's Daily Hydration Progress Button
             Button(
                 onClick = { showClearTodayDialog = true },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)),
@@ -293,6 +302,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Clean Reset Data Block
             Button(
                 onClick = { showResetDialog = true },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
@@ -318,6 +328,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                     onClick = {
                         viewModel.resetData()
                         showResetDialog = false
+                        Toast.makeText(context, "Hydra database completely wiped!", Toast.LENGTH_SHORT).show()
                     }
                 ) {
                     Text("Clear All Data", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
@@ -342,6 +353,7 @@ fun SettingsScreen(viewModel: HydrationViewModel) {
                     onClick = {
                         viewModel.clearTodayLogs()
                         showClearTodayDialog = false
+                        Toast.makeText(context, "Today's logs cleared to zero!", Toast.LENGTH_SHORT).show()
                     }
                 ) {
                     Text("Reset Daily Intake", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)

@@ -60,6 +60,7 @@ fun DashboardScreen(viewModel: HydrationViewModel) {
     LaunchedEffect(viewModel.gamificationMessage) {
         val msg = viewModel.gamificationMessage
         if (!msg.isNullOrBlank()) {
+            // Trigger feedback sound/vibrator if enabled
             if (profile?.vibrationEnabled == true) {
                 val vibrator = context.getSystemService(android.content.Context.VIBRATOR_SERVICE) as? Vibrator
                 vibrator?.vibrate(android.os.VibrationEffect.createOneShot(150, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
@@ -88,7 +89,7 @@ fun DashboardScreen(viewModel: HydrationViewModel) {
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
-                modifier = Modifier.padding(bottom = 60.dp)
+                modifier = Modifier.padding(bottom = 60.dp) // Offset for custom navigation
             ) {
                 Icon(Icons.Default.LocalActivity, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -114,27 +115,33 @@ fun DashboardScreen(viewModel: HydrationViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Top Welcome Hub
             UserProfileHeader(profile)
 
+            // Gamification Streak & Levels Row
             GamificationTrackerHeader(profile)
 
+            // Dynamic Animated Wave Hydration Ring
             HydrationWaveRing(
                 progressPercent = progressPercent,
                 currentIntake = currentIntake,
                 userGoal = userGoal
             )
 
+            // Dynamic Mascot Droppy Card
             MascotDroppyGuidance(progressPercent, viewModel.aiInsightText, viewModel.isLoadingInsight) {
                 viewModel.generateDailyCoachInsight()
             }
 
+            // Quick Stats Row & Weather Card
             GridWidgetsRow(profile, todayLogs)
 
+            // Recent Drink History Mini-List
             RecentLogTimeline(todayLogs) { deletedLog ->
                 viewModel.deleteWaterLog(deletedLog)
             }
 
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(80.dp)) // Padding for floating layout
         }
     }
 
@@ -195,6 +202,7 @@ fun GamificationTrackerHeader(profile: UserProfile?) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Level block
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -225,6 +233,7 @@ fun GamificationTrackerHeader(profile: UserProfile?) {
                 }
             }
 
+            // Streak Block
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.LocalFireDepartment,
@@ -265,6 +274,7 @@ fun getRankTitle(level: Int): String {
 
 @Composable
 fun HydrationWaveRing(progressPercent: Float, currentIntake: Int, userGoal: Int) {
+    // Wave offsets and pulse animation states
     val waveOffsetTransition = rememberInfiniteTransition(label = "waveOffset")
     val wavePhase by waveOffsetTransition.animateFloat(
         initialValue = 0f,
@@ -285,12 +295,14 @@ fun HydrationWaveRing(progressPercent: Float, currentIntake: Int, userGoal: Int)
             .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Outer pulsing ring shadow glow
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .border(6.dp, primaryColor.copy(alpha = 0.12f), CircleShape)
         )
 
+        // Custom canvas wave ring
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
@@ -299,8 +311,10 @@ fun HydrationWaveRing(progressPercent: Float, currentIntake: Int, userGoal: Int)
             val canvasWidth = size.width
             val canvasHeight = size.height
 
+            // Calculate active height level based on progress percent
             val fillHeightY = canvasHeight - (canvasHeight * progressPercent.coerceIn(0f, 1f))
 
+            // 1. Draw Liquid sin Waves if there is any progress > 0
             if (progressPercent > 0.01f) {
                 val wavePath = Path()
                 val waveSecondPath = Path()
@@ -309,6 +323,7 @@ fun HydrationWaveRing(progressPercent: Float, currentIntake: Int, userGoal: Int)
                 waveSecondPath.moveTo(0f, canvasHeight)
 
                 for (x in 0..canvasWidth.toInt()) {
+                    // Two waves superimposed with offset phase for realistic dynamic 2.5D liquid feel
                     val y = fillHeightY + (10f * sin((x / 50f) + wavePhase))
                     wavePath.lineTo(x.toFloat(), y)
 
@@ -322,17 +337,20 @@ fun HydrationWaveRing(progressPercent: Float, currentIntake: Int, userGoal: Int)
                 waveSecondPath.lineTo(canvasWidth, canvasHeight)
                 waveSecondPath.close()
 
+                // Draw secondary deeper wave (underlay) with some translucency
                 drawPath(
                     path = waveSecondPath,
                     color = secondaryColor.copy(alpha = 0.35f)
                 )
 
+                // Draw primary top wave
                 drawPath(
                     path = wavePath,
                     color = primaryColor.copy(alpha = 0.65f)
                 )
             }
 
+            // Draw clean circle rim border over top
             drawCircle(
                 color = primaryColor,
                 radius = (canvasWidth / 2f) - 3f,
@@ -340,6 +358,7 @@ fun HydrationWaveRing(progressPercent: Float, currentIntake: Int, userGoal: Int)
             )
         }
 
+        // Inside Ring metrics display
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -363,12 +382,13 @@ fun HydrationWaveRing(progressPercent: Float, currentIntake: Int, userGoal: Int)
 
 @Composable
 fun MascotDroppyGuidance(progress: Float, coachText: String, isLoading: Boolean, onRefresh: () -> Unit) {
+    // Resolve Droppy's mascot visual expression icon
     val expression = when {
-        progress >= 1.0f -> "🥳"
-        progress >= 0.8f -> "🤩"
-        progress >= 0.5f -> "😊"
-        progress >= 0.3f -> "🙂"
-        else -> "🥺"
+        progress >= 1.0f -> "🥳" // Celebrating
+        progress >= 0.8f -> "🤩" // Excited
+        progress >= 0.5f -> "😊" // Happy
+        progress >= 0.3f -> "🙂" // Motivating
+        else -> "🥺" // Sad
     }
 
     val stateLabel = when {
@@ -455,6 +475,7 @@ fun GridWidgetsRow(profile: UserProfile?, logs: List<WaterLog>) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Widget A: Deficit / Remaining ml
         val totalLogged = logs.sumOf { it.volumeMl }
         val goal = profile?.dailyGoalMl ?: 2500
         val remaining = maxOf(0, goal - totalLogged)
@@ -497,6 +518,7 @@ fun GridWidgetsRow(profile: UserProfile?, logs: List<WaterLog>) {
             }
         }
 
+        // Widget B: Weather Card
         Card(
             modifier = Modifier.weight(1f),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -659,6 +681,8 @@ fun getContainerIcon(containerType: String): androidx.compose.ui.graphics.vector
     }
 }
 
+// --- Container logging sheets ---
+
 data class LogContainerOption(
     val name: String,
     val amount: Int,
@@ -683,6 +707,7 @@ fun HydrationLogBottomSheet(
     var customAmount by remember { mutableFloatStateOf(250f) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
 
+    // Sliding bottom sheet dialog style in Compose
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -699,6 +724,7 @@ fun HydrationLogBottomSheet(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Pill drag handle
             Box(
                 modifier = Modifier
                     .size(width = 40.dp, height = 4.dp)
@@ -712,6 +738,7 @@ fun HydrationLogBottomSheet(
                 color = MaterialTheme.colorScheme.primary
             )
 
+            // Dynamic grid of containers
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -768,6 +795,7 @@ fun HydrationLogBottomSheet(
                     }
                 }
 
+                // Custom log slot
                 item {
                     val isSelected = selectedIndex == 99
                     Box(
@@ -798,6 +826,7 @@ fun HydrationLogBottomSheet(
                 }
             }
 
+            // Custom slider option if 99 is highlighted
             if (selectedIndex == 99) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(

@@ -40,12 +40,14 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
     val todayLogs by viewModel.todayWaterLogs.collectAsState()
     val profile by viewModel.userProfile.collectAsState()
 
-    var activeViewType by remember { mutableStateOf("Weekly") }
+    var activeViewType by remember { mutableStateOf("Weekly") } // Daily, Weekly, Monthly, Yearly
 
+    // Derived values for analytics and cards
     val totalVolume = allLogs.sumOf { it.volumeMl }
     val totalGoal = profile?.dailyGoalMl ?: 2500
 
     val averageIntake = if (allLogs.isEmpty()) 0f else {
+        // Find how many unique days logged
         val uniqueDays = allLogs.map { it.logDate }.distinct().size
         (totalVolume.toFloat() / maxOf(1, uniqueDays)).coerceAtLeast(0f)
     }
@@ -105,6 +107,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                 color = MaterialTheme.colorScheme.primary
             )
 
+            // Selector Chips
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -133,6 +136,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Central Canvas Drawing Chart
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -160,6 +164,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Key Hydration Metrics Section
             Text(
                 text = "Primary Biological Metrics",
                 style = MaterialTheme.typography.titleMedium,
@@ -174,6 +179,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                     .fillMaxWidth()
                     .height(210.dp)
             ) {
+                // Metric A: Average Intake
                 item {
                     MetricCard(
                         title = "Average Daily",
@@ -184,6 +190,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                     )
                 }
 
+                // Metric B: Completion Rate
                 item {
                     MetricCard(
                         title = "Completion Pacing",
@@ -194,6 +201,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                     )
                 }
 
+                // Metric C: Peak Log Frequency Hour
                 item {
                     MetricCard(
                         title = "Peak Log Slot",
@@ -204,6 +212,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                     )
                 }
 
+                // Metric D: Total Consumed
                 item {
                     MetricCard(
                         title = "Lifetime Intake",
@@ -215,6 +224,7 @@ fun StatisticsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Streak & Legend Summary
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -293,10 +303,13 @@ fun MetricCard(title: String, value: String, sub: String, icon: androidx.compose
     }
 }
 
+// --- Canvas Drawings for Charts ---
+
 @Composable
 fun DailyTrendHourlyLineChart(logs: List<WaterLog>, goal: Int) {
     val contextColor = MaterialTheme.colorScheme.primary
 
+    // Map logs group by hour intervals
     val hoursArray = IntArray(24) { 0 }
     logs.forEach { log ->
         val cal = Calendar.getInstance().apply { timeInMillis = log.timestamp }
@@ -304,6 +317,7 @@ fun DailyTrendHourlyLineChart(logs: List<WaterLog>, goal: Int) {
         hoursArray[h] += log.volumeMl
     }
 
+    // Cumulative sum
     val cumulativeIntakes = FloatArray(24) { 0f }
     var runningSum = 0f
     for (i in 0..23) {
@@ -319,6 +333,7 @@ fun DailyTrendHourlyLineChart(logs: List<WaterLog>, goal: Int) {
         val xInterval = width / pointCount
         val maxVolumeVal = maxOf(goal.toFloat(), cumulativeIntakes.maxOrNull() ?: 1000f)
 
+        // Draw guideline for user target goal
         val goalY = height - (goal.toFloat() / maxVolumeVal * height)
         drawLine(
             color = Color.LightGray.copy(alpha = 0.5f),
@@ -350,6 +365,7 @@ fun SevenDaysIntakeBarChart(allLogs: List<WaterLog>, goal: Int) {
     val barColor = MaterialTheme.colorScheme.primary
     val goalColor = MaterialTheme.colorScheme.secondary
 
+    // Calculate volume logged for each of the last 7 calendar days
     val calendar = Calendar.getInstance()
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val dates = List(7) { offset ->
@@ -366,7 +382,7 @@ fun SevenDaysIntakeBarChart(allLogs: List<WaterLog>, goal: Int) {
         val cal = calendar.clone() as Calendar
         cal.add(Calendar.DAY_OF_YEAR, -offset)
         val shortName = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
-        shortName.take(1)
+        shortName.take(1) // Single character representations, e.g. M, T, W, T, F, S, S
     }.reversed()
 
     Canvas(modifier = Modifier.fillMaxSize()) {
@@ -383,6 +399,7 @@ fun SevenDaysIntakeBarChart(allLogs: List<WaterLog>, goal: Int) {
             val barHeight = (volumes[i] / maxVal) * height
             val topY = height - barHeight
 
+            // Draw shadow card background
             drawRoundRect(
                 color = barColor.copy(alpha = 0.08f),
                 topLeft = Offset(cx, 0f),
@@ -390,6 +407,7 @@ fun SevenDaysIntakeBarChart(allLogs: List<WaterLog>, goal: Int) {
                 cornerRadius = CornerRadius(10f, 10f)
             )
 
+            // Draw active cylinder
             drawRoundRect(
                 color = if (volumes[i] >= goal) goalColor else barColor,
                 topLeft = Offset(cx, topY),
@@ -404,11 +422,13 @@ fun SevenDaysIntakeBarChart(allLogs: List<WaterLog>, goal: Int) {
 fun FourWeeksSparkProgressChart(allLogs: List<WaterLog>, goal: Int) {
     val barColor = MaterialTheme.colorScheme.secondary
 
+    // Aggregate values for last 4 weeks
     val today = Calendar.getInstance()
     val weeklyVolumes = FloatArray(4) { 0f }
     for (weekOffset in 0 until 4) {
         val weekStart = today.clone() as Calendar
         weekStart.add(Calendar.WEEK_OF_YEAR, -weekOffset)
+        // filter dates inside this week
         val datesInWeek = List(7) { d ->
             val cal = weekStart.clone() as Calendar
             cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
@@ -446,12 +466,13 @@ fun YearlyMonthsVolumeBarChart(allLogs: List<WaterLog>) {
     val barColor = MaterialTheme.colorScheme.primary
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
+    // Sum logs for last 12 months
     val monthlyVolumes = FloatArray(12) { 0f }
     allLogs.forEach { log ->
         val cal = Calendar.getInstance().apply { timeInMillis = log.timestamp }
         val yr = cal.get(Calendar.YEAR)
         if (yr == currentYear) {
-            val mn = cal.get(Calendar.MONTH)
+            val mn = cal.get(Calendar.MONTH) // 0 to 11
             monthlyVolumes[mn] += log.volumeMl
         }
     }

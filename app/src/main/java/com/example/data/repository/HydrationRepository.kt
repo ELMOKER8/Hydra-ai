@@ -289,6 +289,10 @@ class HydrationRepository(private val hydrationDao: HydrationDao) {
         // If daily progress fell below target, streak adjustment can happen but let's keep it simple for delete.
     }
 
+    suspend fun clearWaterLogsForDate(date: String) {
+        hydrationDao.deleteWaterLogsForDate(date)
+    }
+
     suspend fun clearAllData() {
         hydrationDao.clearAllWaterLogs()
         val defaultProfile = UserProfile(id = 1, initialSetupFinished = false)

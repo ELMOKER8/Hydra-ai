@@ -165,6 +165,13 @@ class HydrationViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun clearTodayLogs() {
+        viewModelScope.launch {
+            repository.clearWaterLogsForDate(_todayDateStr.value)
+            generateDailyCoachInsight()
+        }
+    }
+
     // --- Hydration Logging ---
     fun logWaterIntake(volumeMl: Int, containerType: String) {
         viewModelScope.launch {

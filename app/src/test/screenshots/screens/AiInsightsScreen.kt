@@ -31,7 +31,7 @@ import java.util.Date
 import java.util.Locale
 
 data class ChatMessage(
-    val sender: String,
+    val sender: String, // "User" or "Coach"
     val content: String,
     val time: String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
 )
@@ -42,6 +42,7 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
     val allLogs by viewModel.allWaterLogs.collectAsState()
 
     var userQuery by remember { mutableStateOf("") }
+    var coachResponseMsg by remember { mutableStateOf<String?>(null) }
     var isReplying by remember { mutableStateOf(false) }
 
     val chatMessages = remember {
@@ -50,6 +51,7 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
         )
     }
 
+    // Curated dynamic findings list
     val findings = remember(allLogs) {
         val list = mutableListOf<String>()
         val totalVolume = allLogs.sumOf { it.volumeMl }
@@ -110,6 +112,7 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
                 color = MaterialTheme.colorScheme.primary
             )
 
+            // Pattern Findings Cards
             Text(text = "Clinical Findings", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
 
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -141,12 +144,14 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
+            // Coach Interactive Chat console
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(imageVector = Icons.Default.Psychology, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "Coach Consultation Chat", fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleSmall)
             }
 
+            // Messages Console Area
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -181,7 +186,7 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
                                         else MaterialTheme.colorScheme.primary
                                     )
                                     .padding(12.dp)
-                             ) {
+                            ) {
                                 Text(
                                     text = msg.content,
                                     fontSize = 13.sp,
@@ -211,6 +216,7 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
                 }
             }
 
+            // Input Console Bar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -234,6 +240,7 @@ fun AiInsightsScreen(viewModel: HydrationViewModel) {
                             userQuery = ""
                             isReplying = true
 
+                            // Send to ViewModel Gemini execution
                             viewModel.askAiCoach(userText) { response ->
                                 chatMessages.add(ChatMessage("Coach", response))
                                 isReplying = false

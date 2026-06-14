@@ -35,6 +35,7 @@ fun OnboardingScreen(navController: NavController, viewModel: HydrationViewModel
     val step = viewModel.onboardingStep
     val tempProfile = viewModel.tempProfile
 
+    // Slide transition based on steps moving forward or backward
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -528,6 +529,7 @@ fun Step9HealthConditions(viewModel: HydrationViewModel) {
     val selectedStr = viewModel.tempProfile.healthConditions
     val conditionsList = listOf("None", "Kidney Stone History", "Diabetes", "High Blood Pressure", "Athlete", "Other")
 
+    // Parse selection
     val selectedSet = remember {
         mutableStateListOf<String>().apply {
             if (selectedStr.isNotEmpty()) addAll(selectedStr.split(", "))

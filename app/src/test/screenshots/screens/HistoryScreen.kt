@@ -39,8 +39,9 @@ fun HistoryScreen(viewModel: HydrationViewModel) {
     val context = LocalContext.current
 
     var searchInput by remember { mutableStateOf(TextFieldValue("")) }
-    var selectedFilterContainer by remember { mutableStateOf("All") }
+    var selectedFilterContainer by remember { mutableStateOf("All") } // Cups, Glasses, Bottles, Custom, All
 
+    // Filter list
     val filteredLogs = remember(allLogs, searchInput, selectedFilterContainer) {
         allLogs.filter { log ->
             val matchesSearch = log.logDate.contains(searchInput.text) || log.containerType.lowercase().contains(searchInput.text.lowercase())
@@ -92,6 +93,7 @@ fun HistoryScreen(viewModel: HydrationViewModel) {
                 color = MaterialTheme.colorScheme.primary
             )
 
+            // Search Bar
             OutlinedTextField(
                 value = searchInput,
                 onValueChange = { searchInput = it },
@@ -109,6 +111,7 @@ fun HistoryScreen(viewModel: HydrationViewModel) {
                 }
             )
 
+            // Category filter chips row
             Text(text = "Containers Filter", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleSmall)
 
             LazyRow(
@@ -139,6 +142,7 @@ fun HistoryScreen(viewModel: HydrationViewModel) {
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
+            // Main Logs Grid List
             if (filteredLogs.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -197,6 +201,7 @@ fun HistoryLogItemRow(log: WaterLog, onDelete: (WaterLog) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Left Container details
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -222,6 +227,7 @@ fun HistoryLogItemRow(log: WaterLog, onDelete: (WaterLog) -> Unit) {
                 }
             }
 
+            // Right deletion actions or details
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "+${log.volumeMl} ml",
